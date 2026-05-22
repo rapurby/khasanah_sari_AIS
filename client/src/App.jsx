@@ -789,7 +789,7 @@ export default function App() {
           </div>
           <div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Adjustment Qty (+ add / − reduce)</div><input type="number" value={form.adjQty||""} onChange={e=>fh("adjQty",e.target.value)} placeholder="e.g. +10 or -3" style={{...s.input}}/></div>
           <div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Movement Type</div><select value={form.adjType||"Adjustment"} onChange={e=>fh("adjType",e.target.value)} style={{...s.input}}><option>Adjustment</option><option>Restock</option><option>Damage</option><option>Return</option></select></div>
-          <div style={{marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Reason</div><input value={form.adjReason||""} onChange={e=>fh("adjReason",e.target.value)} placeholder="Stock opname / damage / return..." style={{...s.input}}/></div>
+          <div style={{marginBottom:16}}><div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Reason</div><input value={form.adjReason||""} onChange={e=>fh("adjReason",e.target.value)} placeholder="Stock count / damage / return..." style={{...s.input}}/></div>
           {form.adjQty&&<div style={{background:T.mochaFaint,borderRadius:T.radius,padding:"10px 14px",fontSize:12,marginBottom:14}}>After adjustment: <strong>{Math.max(0,adjModal.stock+(+form.adjQty||0))}</strong> units</div>}
           <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
             <button onClick={()=>setAdjModal(null)} style={s.btnO(T.textMuted)}>Cancel</button>
@@ -1115,28 +1115,28 @@ export default function App() {
             <div style={{fontSize:22,fontWeight:800,color:T.text}}>Raw Materials & Ingredients</div>
             <div style={{fontSize:12,color:T.textMuted,marginTop:2}}>{mats.length} bahan baku · {products.length} produk</div>
           </div>
-          {canEdit&&<button onClick={()=>{setForm({name:"",category:"Flour & Grain",unit:"gram",stock_qty:0,reorder_point:5,unit_cost:0,supplier:""});setAddMatModal(true);}} style={s.btn(T.mocha)}>+ Tambah Bahan Baku</button>}
+          {canEdit&&<button onClick={()=>{setForm({name:"",category:"Flour & Grain",unit:"gram",stock_qty:0,reorder_point:5,unit_cost:0,supplier:""});setAddMatModal(true);}} style={s.btn(T.mocha)}>+ Tambah Raw Material</button>}
         </div>
 
         {lowMats.length>0&&(
           <div style={{background:T.warnBg,border:`1.5px solid ${T.warn}40`,borderRadius:T.radius,padding:"12px 16px",marginBottom:16,display:"flex",gap:10,alignItems:"center"}}>
             <span>⚠️</span>
-            <div><div style={{fontSize:13,fontWeight:700,color:T.warn}}>Bahan Baku Menipis</div>
+            <div><div style={{fontSize:13,fontWeight:700,color:T.warn}}>Low Stock Alert</div>
             <div style={{fontSize:12,color:T.textSub}}>{lowMats.map(m=>m.name).join(" · ")}</div></div>
           </div>
         )}
 
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:14,marginBottom:20}}>
-          <KpiCard label="Total Bahan Baku" value={mats.length} color={T.mocha} icon="🌾"/>
-          <KpiCard label="Perlu Reorder" value={lowMats.length} color={T.danger} icon="⚠️"/>
-          <KpiCard label="Nilai Stok Bahan" value={fmt(mats.reduce((s,m)=>s+parseFloat(m.stock_qty||0)*parseFloat(m.unit_cost||0),0))} color={T.success} icon="💰"/>
-          <KpiCard label="Total Resep" value={mats.reduce((s,m)=>s+(m.used_in_products||0),0)} color={T.info} icon="📋"/>
+          <KpiCard label="Total Raw Materials" value={mats.length} color={T.mocha} icon="🌾"/>
+          <KpiCard label="Need Reorder" value={lowMats.length} color={T.danger} icon="⚠️"/>
+          <KpiCard label="Stock Value" value={fmt(mats.reduce((s,m)=>s+parseFloat(m.stock_qty||0)*parseFloat(m.unit_cost||0),0))} color={T.success} icon="💰"/>
+          <KpiCard label="Total Recipes" value={mats.reduce((s,m)=>s+(m.used_in_products||0),0)} color={T.info} icon="📋"/>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
           {/* Raw Materials List */}
           <div style={{...s.card,padding:20}}>
-            <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:14}}>Stok Bahan Baku</div>
+            <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:14}}>Raw Material Stock</div>
             <div style={{maxHeight:480,overflow:"auto"}}>
               {mats.map(m=>(
                 <div key={m.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${T.border}40`}}>
@@ -1145,7 +1145,7 @@ export default function App() {
                     <div style={{fontSize:13,fontWeight:600,color:T.text}}>{m.name}</div>
                     <div style={{fontSize:11,color:T.textMuted}}>{m.category} · {m.unit}</div>
                     {m.product_names&&m.product_names.length>0&&(
-                      <div style={{fontSize:10,color:T.textFaint,marginTop:2}}>Digunakan di: {m.product_names.slice(0,3).join(", ")}{m.product_names.length>3?" +"+( m.product_names.length-3)+" lagi":""}</div>
+                      <div style={{fontSize:10,color:T.textFaint,marginTop:2}}>Used in: {m.product_names.slice(0,3).join(", ")}{m.product_names.length>3?" +"+( m.product_names.length-3)+" lagi":""}</div>
                     )}
                   </div>
                   <div style={{textAlign:"right"}}>
@@ -1168,13 +1168,13 @@ export default function App() {
           {/* Product Recipe Viewer */}
           <div style={{...s.card,padding:20}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-              <div style={{fontSize:14,fontWeight:700,color:T.text}}>Resep Produk (Ingredients)</div>
-              {selProd&&canEdit&&<button onClick={()=>{setForm({raw_material_id:"",qty_per_unit:""});setAddIngrModal(true);}} style={{...s.btn(T.mocha),padding:"6px 12px",fontSize:12}}>+ Tambah Bahan</button>}
+              <div style={{fontSize:14,fontWeight:700,color:T.text}}>Product Recipe (Ingredients)</div>
+              {selProd&&canEdit&&<button onClick={()=>{setForm({raw_material_id:"",qty_per_unit:""});setAddIngrModal(true);}} style={{...s.btn(T.mocha),padding:"6px 12px",fontSize:12}}>+ Add Ingredient</button>}
             </div>
 
             {/* Product selector */}
             <div style={{marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:8}}>Pilih Produk</div>
+              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:8}}>Select Product</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                 {products.map(p=>(
                   <button key={p.id} onClick={()=>setSelProd(p)}
@@ -1191,17 +1191,17 @@ export default function App() {
                   <span style={{fontSize:24}}>{selProd.emoji||"🍞"}</span>
                   <div>
                     <div style={{fontSize:14,fontWeight:700,color:T.text}}>{selProd.name}</div>
-                    <div style={{fontSize:12,color:T.textMuted}}>HPP System: {fmt(selProd.cost)} · Bahan Baku: {fmt(prodIngr.reduce((s,i)=>s+parseFloat(i.cost_contribution||0),0))}</div>
+                    <div style={{fontSize:12,color:T.textMuted}}>HPP System: {fmt(selProd.cost)} · Raw Material: {fmt(prodIngr.reduce((s,i)=>s+parseFloat(i.cost_contribution||0),0))}</div>
                   </div>
                 </div>
                 {prodIngr.length===0 ? (
-                  <div style={{textAlign:"center",color:T.textMuted,padding:"30px 0",fontSize:13}}>Belum ada bahan baku terdaftar</div>
+                  <div style={{textAlign:"center",color:T.textMuted,padding:"30px 0",fontSize:13}}>No ingredients registered yet</div>
                 ) : (
                   <div style={{maxHeight:300,overflow:"auto"}}>
                     <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
                       <thead>
                         <tr style={{background:T.bgStripe}}>
-                          {["Bahan Baku","Kategori","Qty/Unit","Unit","Biaya/Unit","Kontribusi"].map((h,i)=>(
+                          {["Raw Material","Category","Qty/Unit","Unit","Cost/Unit","Contribution"].map((h,i)=>(
                             <th key={i} style={{padding:"8px 10px",textAlign:"left",color:T.textSub,fontWeight:600,fontSize:10,letterSpacing:.5,textTransform:"uppercase",borderBottom:`2px solid ${T.border}`}}>{h}</th>
                           ))}
                           {canEdit&&<th style={{padding:"8px 10px",borderBottom:`2px solid ${T.border}`}}/>}
@@ -1217,14 +1217,14 @@ export default function App() {
                             <td style={{padding:"8px 10px",color:T.textSub}}>{fmt(ing.unit_cost)}</td>
                             <td style={{padding:"8px 10px",fontWeight:700,color:T.success}}>{fmt(ing.cost_contribution)}</td>
                             {canEdit&&<td style={{padding:"8px 10px"}}>
-                              <button onClick={async()=>{if(!confirm("Hapus bahan ini?"))return;await api.deleteProductIngredient(selProd.id,ing.raw_material_id);await loadProdIngr(selProd.id);notify("Bahan dihapus",T.warn);}} style={{...s.btnO(T.danger),padding:"3px 8px",fontSize:10}}>×</button>
+                              <button onClick={async()=>{if(!confirm("Delete this ingredient?"))return;await api.deleteProductIngredient(selProd.id,ing.raw_material_id);await loadProdIngr(selProd.id);notify("Ingredient removed",T.warn);}} style={{...s.btnO(T.danger),padding:"3px 8px",fontSize:10}}>×</button>
                             </td>}
                           </tr>
                         ))}
                       </tbody>
                       <tfoot>
                         <tr style={{background:T.mochaXfaint}}>
-                          <td colSpan={5} style={{padding:"8px 10px",fontWeight:700,color:T.text}}>Total Biaya Bahan Baku</td>
+                          <td colSpan={5} style={{padding:"8px 10px",fontWeight:700,color:T.text}}>Total Biaya Raw Material</td>
                           <td style={{padding:"8px 10px",fontWeight:800,color:T.mocha,fontSize:14}}>{fmt(prodIngr.reduce((s,i)=>s+parseFloat(i.cost_contribution||0),0))}</td>
                           {canEdit&&<td/>}
                         </tr>
@@ -1234,76 +1234,76 @@ export default function App() {
                 )}
               </div>
             ) : (
-              <div style={{textAlign:"center",color:T.textMuted,padding:"60px 0",fontSize:13}}>Pilih produk di atas untuk melihat resep bahan bakunya</div>
+              <div style={{textAlign:"center",color:T.textMuted,padding:"60px 0",fontSize:13}}>Select a product above to view its ingredient recipe</div>
             )}
           </div>
         </div>
 
         {/* Add Raw Material Modal */}
         {addMatModal&&(
-          <Modal title="Tambah Bahan Baku Baru" onClose={()=>setAddMatModal(false)}>
+          <Modal title="Tambah Raw Material Baru" onClose={()=>setAddMatModal(false)}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
               <div style={{paddingRight:12}}>
-                <F label="Nama Bahan Baku" fkey="name"/>
-                <F label="Kategori" fkey="category" opts={["Flour & Grain","Dairy & Eggs","Fat & Oil","Sugar & Sweetener","Fruit & Filling","Flavoring","Packaging","Beverage Base"]}/>
-                <F label="Satuan (gram/ml/butir/pcs)" fkey="unit"/>
+                <F label="Nama Raw Material" fkey="name"/>
+                <F label="Category" fkey="category" opts={["Flour & Grain","Dairy & Eggs","Fat & Oil","Sugar & Sweetener","Fruit & Filling","Flavoring","Packaging","Beverage Base"]}/>
+                <F label="Unit (gram/ml/pcs/each)" fkey="unit"/>
               </div>
               <div style={{paddingLeft:12}}>
-                <F label="Stok Awal" fkey="stock_qty" type="number"/>
+                <F label="Initial Stock" fkey="stock_qty" type="number"/>
                 <F label="Reorder Point" fkey="reorder_point" type="number"/>
-                <F label="Harga/Satuan (Rp)" fkey="unit_cost" type="number"/>
+                <F label="Cost/Unit (Rp)" fkey="unit_cost" type="number"/>
                 <F label="Supplier" fkey="supplier"/>
               </div>
             </div>
             <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:8}}>
-              <button onClick={()=>setAddMatModal(false)} style={s.btnO(T.textMuted)}>Batal</button>
-              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.createRawMaterial(form);await loadMats();setAddMatModal(false);notify("Bahan baku ditambahkan",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Tambahkan"}</button>
+              <button onClick={()=>setAddMatModal(false)} style={s.btnO(T.textMuted)}>Cancel</button>
+              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.createRawMaterial(form);await loadMats();setAddMatModal(false);notify("Raw material added",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Add"}</button>
             </div>
           </Modal>
         )}
 
         {/* Add Ingredient to Product Modal */}
         {addIngrModal&&selProd&&(
-          <Modal title={`Tambah Bahan — ${selProd.name}`} onClose={()=>setAddIngrModal(false)} width={400}>
+          <Modal title={`Add Ingredient — ${selProd.name}`} onClose={()=>setAddIngrModal(false)} width={400}>
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Pilih Bahan Baku</div>
+              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Pilih Raw Material</div>
               <select value={form.raw_material_id||""} onChange={e=>fh("raw_material_id",e.target.value)} style={{...s.input}}>
-                <option value="">-- Pilih bahan --</option>
+                <option value="">-- Select material --</option>
                 {mats.filter(m=>!prodIngr.find(i=>i.raw_material_id===m.id)).map(m=>(
                   <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>
                 ))}
               </select>
             </div>
             <div style={{marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Qty per 1 Produk</div>
+              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Qty per 1 Product</div>
               <input type="number" value={form.qty_per_unit||""} onChange={e=>fh("qty_per_unit",e.target.value)} placeholder="Contoh: 150 (gram)" style={{...s.input}}/>
             </div>
-            {form.raw_material_id&&form.qty_per_unit&&(()=>{const mat=mats.find(m=>m.id===parseInt(form.raw_material_id));return mat?<div style={{background:T.mochaFaint,borderRadius:T.radius,padding:"10px 14px",fontSize:12,marginBottom:14}}>Estimasi biaya: <strong>{fmt(parseFloat(form.qty_per_unit)*parseFloat(mat.unit_cost))}</strong> per produk</div>:null;})()}
+            {form.raw_material_id&&form.qty_per_unit&&(()=>{const mat=mats.find(m=>m.id===parseInt(form.raw_material_id));return mat?<div style={{background:T.mochaFaint,borderRadius:T.radius,padding:"10px 14px",fontSize:12,marginBottom:14}}>Estimated cost: <strong>{fmt(parseFloat(form.qty_per_unit)*parseFloat(mat.unit_cost))}</strong> per produk</div>:null;})()}
             <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-              <button onClick={()=>setAddIngrModal(false)} style={s.btnO(T.textMuted)}>Batal</button>
-              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.addProductIngredient(selProd.id,form);await loadProdIngr(selProd.id);setAddIngrModal(false);notify("Bahan ditambahkan ke resep",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Tambahkan ke Resep"}</button>
+              <button onClick={()=>setAddIngrModal(false)} style={s.btnO(T.textMuted)}>Cancel</button>
+              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.addProductIngredient(selProd.id,form);await loadProdIngr(selProd.id);setAddIngrModal(false);notify("Ingredient added to recipe",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Add ke Resep"}</button>
             </div>
           </Modal>
         )}
 
         {/* Stock Adjustment Modal */}
         {adjModal&&(
-          <Modal title={`Sesuaikan Stok — ${adjModal.name}`} onClose={()=>setAdjModal(null)} width={380}>
+          <Modal title={`Adjust Stock — ${adjModal.name}`} onClose={()=>setAdjModal(null)} width={380}>
             <div style={{background:T.bgStripe,borderRadius:T.radius,padding:"12px 14px",marginBottom:16,fontSize:13}}>
-              <div style={{display:"flex",justifyContent:"space-between"}}><span style={{color:T.textMuted}}>Stok sekarang</span><span style={{fontWeight:700}}>{parseFloat(adjModal.stock_qty).toLocaleString("id-ID")} {adjModal.unit}</span></div>
+              <div style={{display:"flex",justifyContent:"space-between"}}><span style={{color:T.textMuted}}>Current stock</span><span style={{fontWeight:700}}>{parseFloat(adjModal.stock_qty).toLocaleString("id-ID")} {adjModal.unit}</span></div>
             </div>
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Penyesuaian (+ tambah / − kurang)</div>
-              <input type="number" value={form.adjQty||""} onChange={e=>fh("adjQty",e.target.value)} placeholder="Contoh: +500 atau -200" style={{...s.input}}/>
+              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Adjustment (+ add / − reduce)</div>
+              <input type="number" value={form.adjQty||""} onChange={e=>fh("adjQty",e.target.value)} placeholder="Example: +500 or -200" style={{...s.input}}/>
             </div>
             <div style={{marginBottom:16}}>
-              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Alasan</div>
-              <input value={form.adjReason||""} onChange={e=>fh("adjReason",e.target.value)} placeholder="Pembelian / kerusakan / stock opname..." style={{...s.input}}/>
+              <div style={{fontSize:11,fontWeight:700,color:T.textMuted,letterSpacing:.6,textTransform:"uppercase",marginBottom:6}}>Reason</div>
+              <input value={form.adjReason||""} onChange={e=>fh("adjReason",e.target.value)} placeholder="Purchase / damage / stock count..." style={{...s.input}}/>
             </div>
-            {form.adjQty&&<div style={{background:T.mochaFaint,borderRadius:T.radius,padding:"10px 14px",fontSize:12,marginBottom:14}}>Setelah: <strong>{Math.max(0,parseFloat(adjModal.stock_qty)+(+form.adjQty||0)).toLocaleString("id-ID")} {adjModal.unit}</strong></div>}
+            {form.adjQty&&<div style={{background:T.mochaFaint,borderRadius:T.radius,padding:"10px 14px",fontSize:12,marginBottom:14}}>After: <strong>{Math.max(0,parseFloat(adjModal.stock_qty)+(+form.adjQty||0)).toLocaleString("id-ID")} {adjModal.unit}</strong></div>}
             <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-              <button onClick={()=>setAdjModal(null)} style={s.btnO(T.textMuted)}>Batal</button>
-              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.adjustRawMaterial(adjModal.id,+form.adjQty||0,form.adjReason||"",user.name);await loadMats();setAdjModal(null);notify("Stok bahan disesuaikan",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Terapkan"}</button>
+              <button onClick={()=>setAdjModal(null)} style={s.btnO(T.textMuted)}>Cancel</button>
+              <button disabled={isSaving} onClick={async()=>{setIsSaving(true);try{await api.adjustRawMaterial(adjModal.id,+form.adjQty||0,form.adjReason||"",user.name);await loadMats();setAdjModal(null);notify("Stock adjusted",T.success);}catch(e){notify(e.message,T.danger);}finally{setIsSaving(false);}}} style={s.btn(T.mocha)}>{isSaving?"Saving...":"Apply"}</button>
             </div>
           </Modal>
         )}
@@ -1349,7 +1349,7 @@ export default function App() {
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
               <thead>
                 <tr style={{background:T.bgStripe}}>
-                  {["Produk","Kategori","Qty","Harga Satuan","HPP Satuan","Subtotal","Margin %"].map((h,i)=>(
+                  {["Produk","Category","Qty","Harga Satuan","HPP Satuan","Subtotal","Margin %"].map((h,i)=>(
                     <th key={i} style={{padding:"8px 10px",textAlign:"left",color:T.textSub,fontWeight:600,fontSize:10,letterSpacing:.5,textTransform:"uppercase",borderBottom:`2px solid ${T.border}`}}>{h}</th>
                   ))}
                 </tr>
@@ -1369,7 +1369,7 @@ export default function App() {
               </tbody>
             </table>
           ) : (
-            <div style={{textAlign:"center",color:T.textMuted,padding:"20px 0",fontSize:12}}>Detail item tidak tersedia untuk transaksi ini</div>
+            <div style={{textAlign:"center",color:T.textMuted,padding:"20px 0",fontSize:12}}>Detail item tidak tersedia untuk transactions ini</div>
           )}
         </div>
 
@@ -1425,7 +1425,7 @@ export default function App() {
         )}
 
         <div style={{display:"flex",justifyContent:"flex-end",marginTop:20}}>
-          <button onClick={onClose} style={s.btn(T.mocha)}>Tutup</button>
+          <button onClick={onClose} style={s.btn(T.mocha)}>Close</button>
         </div>
       </Modal>
     );
@@ -1513,11 +1513,11 @@ export default function App() {
   const ProductListPage = () => (
     <div>
       <div style={{fontSize:22,fontWeight:800,color:T.text,marginBottom:6}}>Product List & Price</div>
-      <div style={{fontSize:13,color:T.textMuted,marginBottom:20}}>Daftar produk yang dijual beserta harga jual dan HPP</div>
+      <div style={{fontSize:13,color:T.textMuted,marginBottom:20}}>All products with selling price and cost of goods</div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:14,marginBottom:20}}>
         <KpiCard label="Total Produk" value={products.length} color={T.mocha} icon="🍞"/>
-        <KpiCard label="Avg Harga Jual" value={fmt(products.reduce((s,p)=>s+p.price,0)/Math.max(products.length,1))} color={T.info} icon="💵"/>
-        <KpiCard label="Avg HPP" value={fmt(products.reduce((s,p)=>s+p.cost,0)/Math.max(products.length,1))} color={T.success} icon="📦"/>
+        <KpiCard label="Avg Selling Price" value={fmt(products.reduce((s,p)=>s+p.price,0)/Math.max(products.length,1))} color={T.info} icon="💵"/>
+        <KpiCard label="Avg Cost" value={fmt(products.reduce((s,p)=>s+p.cost,0)/Math.max(products.length,1))} color={T.success} icon="📦"/>
         <KpiCard label="Avg Gross Margin" value={((products.reduce((s,p)=>s+(p.price-p.cost)/p.price*100,0)/Math.max(products.length,1))).toFixed(1)+"%"} color={T.purple} icon="📊"/>
       </div>
       {["Bread","Pastry","Cake","Beverage"].map(cat=>{
@@ -1566,20 +1566,20 @@ export default function App() {
     return (
       <div>
         <div style={{fontSize:22,fontWeight:800,color:T.text,marginBottom:6}}>Cash on Hand</div>
-        <div style={{fontSize:13,color:T.textMuted,marginBottom:20}}>Saldo kas dan ekuivalen kas per periode · {periodLabel()}</div>
+        <div style={{fontSize:13,color:T.textMuted,marginBottom:20}}>Cash and cash equivalents balance per period · {periodLabel()}</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:14,marginBottom:24}}>
-          <KpiCard label="Kas Tunai (Akun 1010)" value={fmt(cashAmt)} sub={`${cashBal?.count||0} transaksi Cash`} color={T.success} icon="💵"/>
-          <KpiCard label="Piutang QRIS (Akun 1030)" value={fmt(qrisAmt)} sub={`${qrisBal?.count||0} transaksi QRIS`} color={T.info} icon="📱"/>
-          <KpiCard label="Saldo GoPay (Akun 1040)" value={fmt(gopayAmt)} sub={`${gopayBal?.count||0} transaksi GoPay`} color={T.warn} icon="🟢"/>
-          <KpiCard label="Bank BCA (Akun 1020)" value={fmt(debitAmt+45000000)} sub={`${debitBal?.count||0} transaksi Debit + saldo awal`} color={T.purple} icon="🏦"/>
+          <KpiCard label="Cash on Hand (Acct 1010)" value={fmt(cashAmt)} sub={`${cashBal?.count||0} transactions Cash`} color={T.success} icon="💵"/>
+          <KpiCard label="QRIS Receivable (Acct 1030)" value={fmt(qrisAmt)} sub={`${qrisBal?.count||0} transactions QRIS`} color={T.info} icon="📱"/>
+          <KpiCard label="GoPay Balance (Acct 1040)" value={fmt(gopayAmt)} sub={`${gopayBal?.count||0} transactions GoPay`} color={T.warn} icon="🟢"/>
+          <KpiCard label="Bank BCA (Acct 1020)" value={fmt(debitAmt+45000000)} sub={`${debitBal?.count||0} transactions Debit + opening balance`} color={T.purple} icon="🏦"/>
         </div>
         <div style={{...s.card,padding:24,maxWidth:560}}>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:16}}>Ringkasan Posisi Kas</div>
+          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:16}}>Cash Position Summary</div>
           {[
-            ["1010 — Kas Tunai",cashAmt,T.success],
+            ["1010 — Cash on Hand",cashAmt,T.success],
             ["1020 — Bank BCA",debitAmt+45000000,T.purple],
-            ["1030 — Piutang QRIS",qrisAmt,T.info],
-            ["1040 — Saldo GoPay",gopayAmt,T.warn],
+            ["1030 — QRIS Receivable",qrisAmt,T.info],
+            ["1040 — GoPay Balance",gopayAmt,T.warn],
           ].map(([l,v,c])=>(
             <div key={l} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:`1px solid ${T.border}40`}}>
               <span style={{fontSize:13,color:T.textSub,fontFamily:"monospace"}}>{l}</span>
@@ -1587,11 +1587,11 @@ export default function App() {
             </div>
           ))}
           <div style={{display:"flex",justifyContent:"space-between",padding:"14px 0",borderTop:`2px solid ${T.mocha}`,marginTop:4}}>
-            <span style={{fontSize:14,fontWeight:800,color:T.text}}>TOTAL KAS & SETARA KAS</span>
+            <span style={{fontSize:14,fontWeight:800,color:T.text}}>TOTAL CASH & EQUIVALENTS</span>
             <span style={{fontSize:18,fontWeight:800,color:T.mocha}}>{fmt(totalCash+45000000)}</span>
           </div>
           <div style={{marginTop:14,padding:"12px 14px",background:T.mochaXfaint,borderRadius:T.radius,fontSize:12,color:T.textSub}}>
-            <strong>Catatan AIS:</strong> Cash on Hand mencakup semua aset yang segera dapat dikonversi menjadi kas, termasuk saldo rekening bank, piutang QRIS (T+1), dan saldo dompet digital. Sesuai PSAK 2 tentang Laporan Arus Kas.
+            <strong>AIS Note:</strong> Cash on Hand mencakup semua aset yang segera dapat dikonversi menjadi kas, termasuk saldo rekening bank, piutang QRIS (T+1), dan saldo dompet digital. Sesuai PSAK 2 tentang Laporan Arus Kas.
           </div>
         </div>
       </div>
@@ -1621,11 +1621,11 @@ export default function App() {
               {icon:"→",label:"",sub:"",color:T.textFaint,arrow:true},
               {icon:"🏭",label:"Production Process",sub:"Mixing, Baking, Decorating",color:T.info},
               {icon:"→",label:"",sub:"",color:T.textFaint,arrow:true},
-              {icon:"🍞",label:"Finished Goods",sub:"Roti, Kue, Pastry Siap Jual",color:T.success},
+              {icon:"🍞",label:"Finished Goods",sub:"Bread, Cake, Pastry Ready to Sell",color:T.success},
               {icon:"→",label:"",sub:"",color:T.textFaint,arrow:true},
-              {icon:"🛒",label:"Sales",sub:"POS Transaction Revenue Recognized",color:T.mocha},
+              {icon:"🛒",label:"Sales",sub:"POS Transaction · Revenue Recognized",color:T.mocha},
               {icon:"→",label:"",sub:"",color:T.textFaint,arrow:true},
-              {icon:"💰",label:"Cash Receipt",sub:"Payment Collected Journal Posted",color:T.purple},
+              {icon:"💰",label:"Cash Receipt",sub:"Payment Collected · Journal Posted",color:T.purple},
             ].map((step,i)=>step.arrow?(
               <div key={i} style={{fontSize:22,color:T.textFaint,padding:"0 8px",flexShrink:0}}>→</div>
             ):(
@@ -1639,15 +1639,15 @@ export default function App() {
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:14,marginBottom:20}}>
-          <KpiCard label="Produk Diproduksi" value={products.filter(p=>p.active).length} color={T.mocha} icon="🍞"/>
-          <KpiCard label="Terjual Hari Ini" value={todayProdTxns.reduce((s,t)=>(t.items||[]).reduce((si,i)=>si+i.qty,s),0)} color={T.info} icon="📦" sub="unit produk"/>
-          <KpiCard label="Total Terjual (Bulan)" value={fmtN(rawMatUsage.reduce((s,p)=>s+p.soldMonth,0))} color={T.success} icon="📊" sub="unit"/>
-          <KpiCard label="COGS Bulan Ini" value={fmt(summary?.totalCOGS||0)} color={T.danger} icon="💸"/>
+          <KpiCard label="Products in Production" value={products.filter(p=>p.active).length} color={T.mocha} icon="🍞"/>
+          <KpiCard label="Terjual Today" value={todayProdTxns.reduce((s,t)=>(t.items||[]).reduce((si,i)=>si+i.qty,s),0)} color={T.info} icon="📦" sub="unit produk"/>
+          <KpiCard label="Total Sold (Month)" value={fmtN(rawMatUsage.reduce((s,p)=>s+p.soldMonth,0))} color={T.success} icon="📊" sub="unit"/>
+          <KpiCard label="COGS This Month" value={fmt(summary?.totalCOGS||0)} color={T.danger} icon="💸"/>
         </div>
 
         <div style={{...s.card,padding:20}}>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:14}}>Output Produksi — Volume Penjualan per Produk</div>
-          <DataTable headers={["Produk","Kategori","Terjual Hari Ini","Terjual Bulan Ini","Harga Jual","Revenue Bulan Ini","Sisa Stok"]}
+          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:14}}>Production Output — Sales Volume per Product</div>
+          <DataTable headers={["Produk","Category","Terjual Today","Terjual This Month","Harga Jual","Revenue This Month","Remaining Stock"]}
             rows={rawMatUsage.map(p=>[
               <div style={{display:"flex",alignItems:"center",gap:8}}><span>{p.emoji||"🍞"}</span><span style={{fontWeight:600}}>{p.name}</span></div>,
               <Badge color={T.mocha}>{p.category}</Badge>,

@@ -1,5 +1,5 @@
 // ============================================================
-// HOLLAND BAKERY AIS — Express Backend Server v2.1
+// KHASANAH SARI BAKERY AIS — Express Backend Server v2.1
 // Fixed: timezone (WIB UTC+7), period filters, date handling
 // ============================================================
 require('dotenv').config();
@@ -449,15 +449,6 @@ app.get('/api/periods', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/dist/index.html')));
-}
-
-app.listen(PORT, () => {
-  console.log(`Bakery AIS Server running on port ${PORT}`);
-  console.log(`WIB date: ${wibDateStr()} | WIB time: ${wibTimeStr()}`);
-});
-
 // ============================================================
 // RAW MATERIALS (BAHAN BAKU / INGREDIENTS)
 // ============================================================
@@ -615,4 +606,15 @@ app.get('/api/transactions/:id/detail', async (req, res) => {
       journalEntries: journals.rows,
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── SERVE REACT BUILD (production) ─────────────────────────
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../client/dist/index.html')));
+}
+
+app.listen(PORT, () => {
+  console.log(`Khasanah Sari Bakery AIS Server running on port ${PORT}`);
+  console.log(`WIB date: ${wibDateStr()} | WIB time: ${wibTimeStr()}`);
 });
